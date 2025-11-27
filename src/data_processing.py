@@ -10,10 +10,10 @@ def to_numeric_clean(x):
 
     s = str(x).strip()
 
-    # nếu chuỗi chứa dấu phẩy: lỗi → trả NaN
+    # # if the string contains a comma, treat it as invalid and return NaN
     if "," in s:
         return np.nan
-
+    # Fix the issue with values like "0x00000000,0x00004000"
     if s == "" or s == "-":
         return np.nan
 
@@ -100,12 +100,10 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 
 # Oversample TRAIN
-
 ros = RandomOverSampler(random_state=42)
 X_train_res, y_train_res = ros.fit_resample(X_train, y_train)
 
 # MinMaxScaler
-
 scaler = MinMaxScaler()
 X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train_res), columns=X_train_res.columns)
 X_test_scaled  = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
@@ -120,7 +118,6 @@ test_df.to_csv("arp_test_preprocessed.csv", index=False)
 
 
 # Final Check
-
 print("Train NaN:", train_df.isna().sum().sum())
 print("Test  NaN:", test_df.isna().sum().sum())
 print("Train Min:", train_df.min().min(), "Max:", train_df.max().max())
