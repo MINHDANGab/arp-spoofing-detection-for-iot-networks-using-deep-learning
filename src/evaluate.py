@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from model import ARPSpoofNN
 from sklearn.metrics import (confusion_matrix, accuracy_score, precision_score,recall_score, f1_score, ConfusionMatrixDisplay)
 
-# === 1. Load dữ liệu ===
+# === 1. Load data ===
 test_df = pd.read_csv("arp_test_preprocessed.csv")
 X_test = test_df.drop(columns=["label"]).values.astype(np.float32)
 y_test = test_df["label"].values.astype(np.float32).reshape(-1)

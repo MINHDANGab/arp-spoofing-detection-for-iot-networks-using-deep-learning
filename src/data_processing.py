@@ -53,32 +53,23 @@ combined.to_csv("data/arp_spoofing_all_combined.csv", index=False)
 
 df = pd.read_csv("data/arp_spoofing_all_combined.csv")
 
-# ============================================================
-# 2) CLEAN ip.proto, ip.len, ip.ttl, ip.hdr_len — RẤT QUAN TRỌNG
-# ============================================================
-
+# Convert ["ip.proto", "ip.len", "ip.ttl", "ip.hdr_len"] to numeric
 cols_ip = ["ip.proto", "ip.len", "ip.ttl", "ip.hdr_len"]
 for col in cols_ip:
     df[col] = df[col].apply(to_numeric_clean)
 
-# ============================================================
-# 3) CLEAN HEX FIELDS (ip.flags + tcp.flags)
-# ============================================================
 
+# Convert (ip.flags + tcp.flags) to  decimal
 df["ip.flags"] = df["ip.flags"].apply(hex_to_int)
 df["tcp.flags"] = df["tcp.flags"].apply(hex_to_int)
 
-# ============================================================
-# 4) ENCODE ARP & ICMP (0/1)
-# ============================================================
 
+# Binary_Encode ARP & ICMP (0/1)
 df["arp"] = df["arp"].apply(lambda x: 1 if pd.notna(x) else 0)
 df["icmp"] = df["icmp"].apply(lambda x: 1 if pd.notna(x) else 0)
 
-# ============================================================
-# 5) DISABLE TCP/UDP FIELDS (giống ARP-PROBE)
-# ============================================================
 
+# Disable TCP/UDP fields
 tcp_features = [
     'tcp.srcport', 'tcp.dstport', 'tcp.flags', 'tcp.flags.syn',
     'tcp.flags.ack', 'tcp.flags.reset', 'tcp.window_size',
@@ -89,56 +80,47 @@ udp_features = ['udp.srcport', 'udp.dstport']
 df.loc[df["ip.proto"] == 6, udp_features] = -1
 df.loc[df["ip.proto"] == 17, tcp_features] = -1
 
-# ============================================================
-# 6) CLEAN TẤT CẢ OBJECT FIELD CÒN LẠI (nếu còn <= 1%)
-# ============================================================
-
+# Convert all remaining object-type columns to numeric 
 for col in df.select_dtypes(include=['object']).columns:
     df[col] = df[col].apply(to_numeric_clean)
 
-# ============================================================
-# 7) Fill NaN
-# ============================================================
+
+# Fill NaN
 df = df.fillna(-1)
 
-# ============================================================
-# 8) Tách X/y
-# ============================================================
+
+# Split features (X) and labels (y)
 y = df["label"]
 X = df.drop(columns=["label"])
 
-# ============================================================
-# 9) Train/Test split
-# ============================================================
+# Train/Test split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.25, random_state=42, stratify=y
 )
 
-# ============================================================
-# 10) Oversample TRAIN
-# ============================================================
+
+# Oversample TRAIN
+
 ros = RandomOverSampler(random_state=42)
 X_train_res, y_train_res = ros.fit_resample(X_train, y_train)
 
-# ============================================================
-# 11) MinMaxScaler
-# ============================================================
+# MinMaxScaler
+
 scaler = MinMaxScaler()
 X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train_res), columns=X_train_res.columns)
 X_test_scaled  = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
 
-# ============================================================
-# 12) SAVE
-# ============================================================
+
+# SAVE
 train_df = pd.concat([X_train_scaled, y_train_res.reset_index(drop=True)], axis=1)
 test_df  = pd.concat([X_test_scaled,  y_test.reset_index(drop=True)], axis=1)
 
 train_df.to_csv("arp_train_preprocessed.csv", index=False)
 test_df.to_csv("arp_test_preprocessed.csv", index=False)
 
-# ============================================================
-# 13) KIỂM TRA CUỐI
-# ============================================================
+
+# Final Check
+
 print("Train NaN:", train_df.isna().sum().sum())
 print("Test  NaN:", test_df.isna().sum().sum())
 print("Train Min:", train_df.min().min(), "Max:", train_df.max().max())
