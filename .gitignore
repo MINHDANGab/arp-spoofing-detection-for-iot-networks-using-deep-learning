@@ -1,0 +1,25 @@
+# Ignore dataset folders
+data/
+raw_dataset/
+survey/
+
+# Ignore notebook
+HTVT.ipynb
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# VSCode settings
+.vscode/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
