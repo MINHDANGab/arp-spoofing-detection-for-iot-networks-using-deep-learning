@@ -1,4 +1,4 @@
-# arp-spoofing-detection-for-iot-networks-using-deep-learning
+# Arp-spoofing-detection-for-iot-networks-using-deep-learning
 
 This project implements a deep-learning–based system to detect ARP spoofing (MITM attacks) in IoT networks.  
 The dataset is generated from packet captures (PCAP), preprocessed using Python, and then trained with a Deep Neural Network (DNN) model built in PyTorch.
